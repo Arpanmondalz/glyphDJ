@@ -32,8 +32,8 @@ When you load it into the Nothing Phone (2a) ringtones or the glyph composer app
 ### Setup and Launch
 
 ```bash
-git clone https://github.com/<yourusername>/glyph-dj.git
-cd glyph-dj
+git clone https://github.com/Arpanmondalz/glyphDJ.git
+cd glyphDJ
 
 # Optional: Set up a virtual environment
 python3 -m venv venv
@@ -54,11 +54,11 @@ Just head over to http://localhost:5000 in your browser to get going.
 ### Basic technicalities
 
 - Nothing Phones' Glyph LEDs(until 3a pro) are indexed from 0 to n-1 where n is the total number of addressable LED segments. 
-- In case of the Phone (2a) series, the bottom LED of the top left Glyph is the first index [0]. 
-- And since this is an addressable Glyph, the top of this Glyph ends with LED [23]. So there are 24 addressable LED segments here. 
+- In case of the Phone (2a) series, the bottom LED of the top left Glyph is the first index `[0]`. 
+- And since this is an addressable Glyph, the top of this Glyph ends with LED `[23]`. So there are 24 addressable LED segments here. 
 - In this web app, we divide this Glyph into 4 segments instead of 24 to make it easir to control. 
-- The Middle right vertical Glyph is indexed [24]
-- The little bottom left Glyph is indexed [25]
+- The Middle right vertical Glyph is indexed `[24]`
+- The little bottom left Glyph is indexed `[25]`
 
 ### Start composing
 
@@ -87,29 +87,6 @@ If the file doesn't import properly on your phone, double-check these:
 - Audio should be Opus codec inside an Ogg container for best results.
 - AUTHOR tag must decode to valid 26-column CSV rows.
 - Peek at the tags with `vorbiscomment -l file.ogg` or use `ffprobe` to verify the codec.
-
-***
-
-## Common Issues and Fixes
-
-- **Error: "File was not created by glyph composer"**
-  This usually pops up from wonky metadata (like incorrect line endings, no trailing commas, or missing tags) or an incompatible audio format. Just re-export through the app—it handles the formatting and any needed transcoding automatically.
-
-- **Check Metadata on Your Own**
-  ```bash
-  vorbiscomment -l output_glyphed.ogg
-  ffprobe -v error -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 output_glyphed.ogg
-  ```
-
-- **Pulling the AUTHOR Tag Back to CSV (in Python)**
-  ```python
-  import base64, zlib
-  b64 = "<AUTHOR value here (join lines)>"
-  # Add padding if the length isn't a multiple of 4
-  padded = b64 + "=" * (-len(b64) % 4)
-  csv = zlib.decompress(base64.b64decode(padded))
-  print(csv.decode('utf-8')[:1000])
-  ```
 
 ***
 
