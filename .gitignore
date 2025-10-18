@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+env/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build / temp files
+*.log
+*.sqlite3
+*.db
+*.tgz
+*.gz
+
+# Audio / outputs
+*.ogg
+*.wav
+*.mp3
+*.csv
+
+# Mac artifact
+Icon?
+
+# Node (if you add node stuff later)
+node_modules/

@@ -1,0 +1,318 @@
+/* --- Variables & Colors --- */
+:root {
+  --bg: #040404;
+  --panel: #0b0b0b;
+  --accent: #ff2d2d;
+  --muted: #9a9a9a;
+  --white: #ffffff;
+  --timeline-row-height: 40px;
+
+  /* Palette */
+  --c0: #ff9b9b; /* Q */
+  --c1: #ffbf99; /* W */
+  --c2: #fff38f; /* E */
+  --c3: #bfffa0; /* R */
+  --c4: #9fdfff; /* L */
+  --c5: #cfa2ff; /* M */
+}
+
+
+/* --- Base & Reset --- */
+* {
+  box-sizing: border-box;
+  font-family: 'Space Grotesk', Inter, Segoe UI, system-ui, Arial, sans-serif;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--white);
+}
+
+
+/* --- Header / Top Bar --- */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.brand .logo {
+  font-weight: 700;
+  font-size: 40px;
+}
+
+.brand .subtitle {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* --- Buttons & Inputs --- */
+.btn {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.btn.white {
+  background: white;
+  color: black;
+}
+
+.btn.accent {
+  background: linear-gradient(90deg, var(--accent), #ff5252);
+  color: white;
+}
+
+.filebtn input {
+  display: none;
+}
+
+.filebtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.speed,
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* --- Main Layout --- */
+main {
+  display: flex;
+  gap: 18px;
+  padding: 18px;
+}
+
+.left {
+  flex: 1;
+  min-width: 0;
+}
+
+.right {
+  width: 320px;
+}
+
+
+/* --- Timeline --- */
+.audioRow {
+  margin-bottom: 12px;
+}
+
+.timelineContainer {
+  background: linear-gradient(180deg, #0e0707, #120606);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.timelineWrap {
+  position: relative;
+  background: #170808;
+  border-radius: 8px;
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.timeline {
+  display: block;
+  min-height: calc(var(--timeline-row-height) * 6);
+  position: relative;
+  user-select: none;
+}
+
+.timeRuler {
+  position: relative;
+  height: 18px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Timeline Rows */
+.row {
+  display: flex;
+  align-items: center;
+  height: var(--timeline-row-height);
+  position: relative;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.02);
+}
+
+.rowLabel {
+  width: 56px;
+  padding-right: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.rowContent {
+  flex: 1;
+  position: relative;
+  min-width: 600px;
+  height: 100%;
+}
+
+/* Timeline Segments */
+.segment {
+  position: absolute;
+  height: 70%;
+  top: 15%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: 600;
+  cursor: move;
+  user-select: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+.segment .handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.segment .handle.left {
+  left: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.segment .handle.right {
+  right: 0;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.segment.selected {
+  outline: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Playhead marker */
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 2px;
+  background: var(--accent);
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+
+/* --- Right Sidebar --- */
+.glyphPreview {
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.glyphRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.glyphBox {
+  flex: 1;
+  height: 28px;
+  background: #111;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.glyphSegment {
+  flex: 1;
+  height: 100%;
+  margin: 0 6px;
+  border-radius: 6px;
+  opacity: 0.12;
+  transition: opacity 0.08s, box-shadow 0.08s;
+}
+
+.glyphSegment.on {
+  opacity: 1;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Key Legend */
+.keyLegend {
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.key {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  margin-right: 8px;
+  font-weight: 700;
+  background: white;
+  color: black;
+}
+
+
+/* --- Footer & Hints --- */
+.editorHint {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.footer {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.02);
+  margin-top: 18px;
+}
+
+.footer .creator {
+  font-size: 12px;
+  color: var(--muted);
+}

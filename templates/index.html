@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Glyph DJ</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+    <!-- Main App Container -->
+    <div id="app">
+        <header class="topbar">
+            <div class="brand">
+                <div class="logo">Glyph DJ</div>
+                <div class="subtitle">Nothing Phone 2a — 26 zones (0 - 25)</div>
+            </div>
+
+            <!-- Main Controls -->
+            <div class="controls">
+                <label class="filebtn btn white">
+                    <input id="fileInput" type="file" accept=".ogg, audio/*" />
+                    Import music (OGG)
+                </label>
+
+                <label class="speed">
+                    Speed:
+                    <input id="speedRange" type="range" min="0.25" max="1.5" step="0.01" value="1" />
+                    <span id="speedVal">1.00x</span>
+                </label>
+
+                <label class="zoom">
+                    Zoom:
+                    <input id="zoomRange" type="range" min="0.5" max="2.0" step="0.05" value="1" />
+                </label>
+
+                <button id="clearAll" class="btn white">Clear All</button>
+                <button id="exportOgg" class="btn accent">Export OGG</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Left Panel: Audio Player and Timeline -->
+            <section class="left">
+                <div class="audioRow">
+                    <audio id="audio" controls style="width:100%"></audio>
+                </div>
+
+                <div class="timelineContainer">
+                    <div class="timelineHeader">
+                        <div class="legend">Timeline (press <strong>Q W E R L M</strong> to record)</div>
+                    </div>
+
+                    <div id="timelineWrap" class="timelineWrap">
+                        <div id="timeline" class="timeline"></div>
+                        <div id="playhead" class="playhead"></div>
+                    </div>
+
+                    <div id="timeRuler" class="timeRuler"></div>
+                </div>
+
+                <div class="editorHint">
+                    Hold a key to activate the respective Glyph and release to deactivate.
+                </div>
+            </section>
+
+            <!-- Right Panel: Glyph Preview and Key Legend -->
+            <aside class="right">
+                <div class="glyphPreview" id="glyphPreview"></div>
+
+                <div class="keyLegend">
+                    <div class="legendRow"><span class="key" id="k-q">Q</span> indices <code>0 - 5</code></div>
+                    <div class="legendRow"><span class="key" id="k-w">W</span> indices <code>6–11</code></div>
+                    <div class="legendRow"><span class="key" id="k-e">E</span> indices <code>12–17</code></div>
+                    <div class="legendRow"><span class="key" id="k-r">R</span> indices <code>18–23</code></div>
+                    <div class="legendRow"><span class="key" id="k-l">L</span> index <code>24</code></div>
+                    <div class="legendRow"><span class="key" id="k-m">M</span> index <code>25</code></div>
+                </div>
+
+                <div class="exportNote">
+                    Export: OGG with embedded glyph metadata compatible with Nothing Phone 2a.
+                </div>
+            </aside>
+        </main>
+
+        <footer class="footer">
+            <div class="creator">Created by Arpan Mondal</div>
+        </footer>
+    </div>
+
+    <!-- Main Script -->
+    <script src="/static/js/main.js"></script>
+
+</body>
+</html>
