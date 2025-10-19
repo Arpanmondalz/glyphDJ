@@ -12,9 +12,19 @@ def _b64_strip_and_chunk(raw_bytes: bytes) -> str:
     return "\n".join(parts) + "\n"
 
 def _escape_ffmeta(s: str) -> str:
-    # fix up the string for ffmetadata - escape backslashes, equals, semis, hashes, and newlines
-    return s.replace("\\", "\\\\").replace("=", "\\=").replace(";", "\\;") \
-            .replace("#", "\\#").replace("\n", "\\n")
+    """
+    Escape text for ffmetadata input.
+    Important: replace actual newline characters with a backslash followed by a real newline
+    (i.e. "\\\n" in Python source) — NOT a literal backslash-n sequence "\\n".
+    """
+    return (s
+            .replace("\\", "\\\\")   # escape backslashes first
+            .replace("=", "\\=")
+            .replace(";", "\\;")
+            .replace("#", "\\#")
+            .replace("\n", "\\\n")   # BACKSLASH + REAL NEWLINE — this is intentional
+           )
+
 
 def transcode_to_ogg_opus(src: str, dst: str):
     # convert audio to ogg opus at 48k stereo with ffmpeg
