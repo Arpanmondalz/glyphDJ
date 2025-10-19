@@ -5,6 +5,11 @@ This is a simple web tool for creating and adding custom glyph light effects to 
 I created this tool due to the lack of quick and simple tools to create custom glyph light effects for ringtones, and notifications. I kept it as user friendly as possible, requiring no additional tools like audacity, etc. It includes a nice frontend created with flask. 
 You can record your light sequence right from your keyboard using key bindings, tweak them on a timeline, and then export an OGG file with the glyph info fed into its metadata. It works like playing a keyboard 🎹, with a keyboard ⌨
 
+<img width="1816" height="930" alt="Screenshot 2025-10-19 100225" src="https://github.com/user-attachments/assets/3a8a0eeb-e762-4486-964b-a759b1774cd1" />
+
+<img width="1814" height="918" alt="Screenshot 2025-10-19 100318" src="https://github.com/user-attachments/assets/ddd8fa8c-a9c6-4a73-b1da-51a1d858f82f" />
+
+
 When you load it into the Nothing Phone (2a) ringtones or the glyph composer app, you'll see the lights flash exactly the way you recorded. 
 
 ***
