@@ -1,10 +1,10 @@
 # Technical Notes for Glyph DJ (Nothing Phone 2a)
 
-Here's a rundown of the precise file structures, metadata rules, and encoding steps that Glyph DJ follows to make sure exported OGG files load up properly in the Nothing Phone 2a's Glyph Composer. I've also covered the app's inner workings for things like CSV creation, compression, and embedding, plus some straightforward ways to check everything.
+Here's a rundown of the precise file structures, metadata rules, and encoding steps that Glyph DJ follows to make sure exported OGG files load up properly in the Nothing Phone 2a's Glyph Composer.
 
 > **Key Aims**
 > - Generate a CSV that captures glyph LED states at 60 Hz (one frame every 16.666 ms), with 26 columns for indices 0 through 25.
-> - Compress and encode that CSV into Vorbis comments so the Nothing app picks it up as valid glyph data.
+> - Compress and encode that CSV into Vorbis comments so the Nothing Glyph Composer app picks it up as valid glyph data.
 > - Stick to Ogg containers with Opus audio (48 kHz stereo) to keep things reliable on the device.
 
 ***
@@ -12,7 +12,7 @@ Here's a rundown of the precise file structures, metadata rules, and encoding st
 ## 1. Raw Glyph CSV Format (What's in the AUTHOR Payload)
 
 - **Frame Rate:** Locked at 60 Hz, meaning a new row every 16.666... ms.
-- **Columns:** Exactly 26, one for each LED zone from 0 to 25. Values are whole numbers between 0 and 4095 (where 4095 means full brightness).
+- **Columns:** Exactly 26 (for Phone (2a) series), one for each LED zone from 0 to 25. Values are whole numbers between 0 and 4095 (where 4095 means full brightness).
 - **Row Layout:** Commas separate the values, and there's a trailing comma after the last one in each row.
   - For example (showing the first few and last):  
     ```
@@ -20,7 +20,6 @@ Here's a rundown of the precise file structures, metadata rules, and encoding st
     ```
   - **Key Point:** That extra comma after the 26th value is crucial—each row ends with a comma.
 - **Line Endings:** Use CRLF (`\r\n`) between rows, and add one more at the very end of the whole CSV.
-- **Handling Fades:** For segments with a fade-out, calculate the brightness per frame during that period (linear ramp or whatever envelope you pick) and plug in the 0-4095 value for those spots.
 - **Overall Size:** For an audio track of T seconds, you'll have `ceil(T * 60)` rows. Every row needs 26 numbers followed by that trailing comma.
 
 ***
@@ -141,17 +140,6 @@ To get solid results with the Nothing Phone 2a Composer, we include these tags:
 
 ***
 
-## 10. Tips and Common Pitfalls
-
-- Don't skip the trailing comma or CRLF endings—they're picky details, but nailing them fixed import issues in testing.
-- Certain composer versions demand `CUSTOM1` and `COMPOSER` be present. The exact "v1-Pacman Glyph Composer" text and "26cols" in `CUSTOM2` match what we've seen in device guides and helped the app recognize files as legit.
-- If a file still won't load on the phone, verify:
-  - `AUTHOR` tag is there and unpacks to 26-column CSV rows;
-  - Audio is Ogg with Opus codec;
-  - Base64 in `AUTHOR` has no padding and is split into 76-char lines.
-
-***
-
 ## Sources
 
 - [custom-nothing-glyph-tools (GitHub)](https://github.com/SebiAi/custom-nothing-glyph-tools/blob/main/docs/9_Technical%20Details.md)
@@ -160,19 +148,3 @@ To get solid results with the Nothing Phone 2a Composer, we include these tags:
 - [Mutagen (Python tagging library)](https://mutagen.readthedocs.io/)
 
 ***
-
-## Extra: Sample Python for Compressing and Formatting Base64
-
-```python
-import zlib, base64
-
-
-def prepare_author_payload(csv_text: str) -> str:
-    # Assume csv_text is already set up with CRLF and trailing commas per row
-    raw = csv_text.encode('utf-8')
-    compressed = zlib.compress(raw, zlib.Z_BEST_COMPRESSION)
-    b64 = base64.b64encode(compressed).decode('ascii').rstrip('=')  # No padding '='
-    # Split into 76-char lines
-    lines = [b64[i:i+76] for i in range(0, len(b64), 76)]
-    return "\n".join(lines) + "\n"
-```
