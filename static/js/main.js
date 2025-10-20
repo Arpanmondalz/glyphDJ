@@ -53,6 +53,10 @@ let zoomFactor = 1; // Timeline zoom level.
 // e.g., segments[0] is an array of {start, end, fade} for the 'q' track.
 let segments = TRACK_KEYS.map(() => []);
 
+// currently selected segment DOM element (or null)
+let selectedSegmentEl = null;
+
+
 // Tracks currently active recordings (when a key is held down).
 let activeRecording = {};
 
@@ -179,6 +183,10 @@ function updatePlayhead(time) {
 
 // Re-draws the entire timeline based on the current `segments` data.
 function renderTimeline() {
+    
+    // Clear selection reference because DOM nodes will be replaced
+    selectedSegmentEl = null;
+
     timelineEl.innerHTML = ''; // Clear the old timeline first.
 
     TRACK_KEYS.forEach((key, trackIndex) => {
@@ -219,73 +227,78 @@ function renderTimeline() {
     updateGlyphPreviewAtTime(audioEl.currentTime || 0);
 }
 
-// Adds mousedown handlers to a segment element for moving and resizing.
 function makeSegmentInteractive(el, seg, trackIndex) {
-    el.addEventListener('click', (ev) => {
-        ev.stopPropagation(); // Prevent timeline click from firing.
-        // Deselect all other segments.
-        document.querySelectorAll('.segment').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
-    });
+  // attach references so we can find & remove the underlying segment later
+  el._segmentRef = seg;
+  el._trackIndex = trackIndex;
 
-    let mode = null; // Can be 'move', 'resize-left', or 'resize-right'.
-    let startX = 0;
-    let startLeft = 0;
-    let startWidth = 0;
+  // click = select
+  el.addEventListener('click', (ev) => {
+    ev.stopPropagation(); // Prevent timeline click from firing.
+    // Deselect all other segments.
+    document.querySelectorAll('.segment').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedSegmentEl = el;
+  });
 
-    el.addEventListener('mousedown', (ev) => {
-        ev.stopPropagation();
+  // double-click = delete with confirmation
+  el.addEventListener('dblclick', (ev) => {
+    ev.stopPropagation();
+    if (!confirm('Delete this segment?')) return;
+    const arr = segments[trackIndex];
+    const idx = arr.indexOf(seg);
+    if (idx >= 0) {
+      arr.splice(idx, 1);
+      selectedSegmentEl = null;
+      renderTimeline();
+    }
+  });
 
-        startX = ev.clientX;
-        startLeft = parseFloat(el.style.left || 0);
-        startWidth = parseFloat(el.style.width || 0);
+  // make draggable/resizable as before
+  let mode = null, startX = 0, startLeft = 0, startWidth = 0;
+  el.addEventListener('mousedown', (ev) => {
+    ev.stopPropagation();
+    startX = ev.clientX;
+    startLeft = parseFloat(el.style.left || 0);
+    startWidth = parseFloat(el.style.width || 0);
+    const rect = el.getBoundingClientRect();
+    const relX = ev.clientX - rect.left;
+    if (relX < 8) mode = 'resize-left';
+    else if (relX > rect.width - 8) mode = 'resize-right';
+    else mode = 'move';
 
-        // Determine if we're resizing or moving based on click position.
-        const rect = el.getBoundingClientRect();
-        const relX = ev.clientX - rect.left;
-        if (relX < 8) {
-            mode = 'resize-left';
-        } else if (relX > rect.width - 8) {
-            mode = 'resize-right';
-        } else {
-            mode = 'move';
-        }
+    function onMove(e) {
+      const dx = e.clientX - startX;
+      const totalScale = 100 * zoomFactor;
+      if (mode === 'move') {
+        const newLeft = Math.max(0, startLeft + dx);
+        el.style.left = newLeft + 'px';
+        seg.start = pxToTime(newLeft);
+        if (seg.end !== null) seg.end = seg.start + (startWidth / totalScale);
+      } else if (mode === 'resize-left') {
+        const newLeft = Math.max(0, startLeft + dx);
+        const newWidth = Math.max(6, startWidth - dx);
+        el.style.left = newLeft + 'px';
+        el.style.width = newWidth + 'px';
+        seg.start = pxToTime(newLeft);
+        seg.end = pxToTime(newLeft + newWidth);
+      } else if (mode === 'resize-right') {
+        const newWidth = Math.max(6, startWidth + dx);
+        el.style.width = newWidth + 'px';
+        seg.end = pxToTime(startLeft + newWidth);
+      }
+    }
 
-        function onMouseMove(e) {
-            const dx = e.clientX - startX;
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      mode = null;
+      updateGlyphPreviewAtTime(audioEl.currentTime || 0);
+    }
 
-            if (mode === 'move') {
-                const newLeft = Math.max(0, startLeft + dx);
-                el.style.left = `${newLeft}px`;
-                seg.start = pxToTime(newLeft);
-                if (seg.end !== null) {
-                    seg.end = seg.start + pxToTime(startWidth);
-                }
-            } else if (mode === 'resize-left') {
-                const newLeft = Math.max(0, startLeft + dx);
-                const newWidth = Math.max(6, startWidth - dx);
-                el.style.left = `${newLeft}px`;
-                el.style.width = `${newWidth}px`;
-                seg.start = pxToTime(newLeft);
-                seg.end = pxToTime(newLeft + newWidth);
-            } else if (mode === 'resize-right') {
-                const newWidth = Math.max(6, startWidth + dx);
-                el.style.width = `${newWidth}px`;
-                seg.end = pxToTime(startLeft + newWidth);
-            }
-        }
-
-        function onMouseUp() {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-            mode = null;
-            // Sync preview after edit.
-            updateGlyphPreviewAtTime(audioEl.currentTime || 0);
-        }
-
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-    });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
 }
 
 function pxToTime(px) {
@@ -458,6 +471,29 @@ exportOggBtn.addEventListener('click', async () => {
         exportOggBtn.textContent = 'Export OGG';
     }
 });
+
+// Delete selected segment with Delete or Backspace
+document.addEventListener('keydown', (e) => {
+  // ignore when typing in inputs or if no selection
+  const activeTag = document.activeElement && document.activeElement.tagName;
+  if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || !selectedSegmentEl) return;
+
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    const el = selectedSegmentEl;
+    if (!el || !el._segmentRef) return;
+    const ti = el._trackIndex;
+    const seg = el._segmentRef;
+    const arr = segments[ti];
+    const idx = arr.indexOf(seg);
+    if (idx >= 0) {
+      // remove and re-render
+      arr.splice(idx, 1);
+      selectedSegmentEl = null;
+      renderTimeline();
+    }
+  }
+});
+
 
 // --- Utility Functions ---
 
